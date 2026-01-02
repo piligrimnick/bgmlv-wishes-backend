@@ -9,7 +9,7 @@ local:
 minio:
   service: S3
   bucket: wishes.<%= Rails.env %>
-  endpoint: https://s3.bgmlv.com
+  endpoint: <%= ENV.fetch('S3_ENDPOINT') { 'https://s3.bgmlv.com' } %>
   access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
   secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
   region: <%= ENV['AWS_REGION'] %>
