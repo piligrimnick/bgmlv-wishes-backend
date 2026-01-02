@@ -1,4 +1,5 @@
 class UserStruct < ApplicationStruct
+  attribute :id, Types::Integer.optional
   attribute :email, Types::String.optional
   attribute :username, Types::String.optional
   attribute :firstname, Types::String.optional

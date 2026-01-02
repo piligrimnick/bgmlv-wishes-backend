@@ -30,5 +30,38 @@ RSpec.describe 'Users API', type: :request do
         run_test!
       end
     end
+
+    put 'Update a user' do
+      tags 'Users'
+      produces 'application/json'
+      consumes 'application/json'
+      parameter name: :user, in: :body, schema: {
+        type: :object,
+        properties: {
+          user: {
+            type: :object,
+            properties: {
+              email: { type: :string },
+              password: { type: :string },
+              firstname: { type: :string },
+              lastname: { type: :string }
+            }
+          }
+        }
+      }
+
+      response '200', 'Success' do
+        schema type: :object
+        run_test!
+      end
+
+      response '403', 'Forbidden' do
+        run_test!
+      end
+
+      response '422', 'Unprocessable Entity' do
+        run_test!
+      end
+    end
   end
 end

@@ -112,6 +112,39 @@ paths:
             application/json:
               schema:
                 type: object
+    put:
+      summary: Update a user
+      tags:
+      - Users
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      type: string
+                    firstname:
+                      type: string
+                    lastname:
+                      type: string
   "/api/user_wishes/{user_id}":
     get:
       summary: Get user wishes
