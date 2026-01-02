@@ -1,12 +1,13 @@
-# README
+# Wishes Backend (API)
 
-## ShWish app api
+Данная директория содержит API на Ruby on Rails.
 
-app: https://wishes.bgmlv.com
+Для получения общей информации о проекте и инструкций по запуску обратитесь к [README.md](../README.md) в корневом каталоге.
 
-api: https://api.wishes.bgmlv.com/api
+## Специфично для Backend
 
-api docs: https://wishes.bgmlv.com/apipie
+- **API Docs**: [https://wishes.bgmlv.com/apipie](https://wishes.bgmlv.com/apipie)
+- **Tech Stack**: Rails 8.0, PostgreSQL, RSpec, Rswag.
 
 ### Todos
 
