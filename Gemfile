@@ -35,9 +35,8 @@ gem 'dry-initializer'
 gem 'dry-struct'
 gem 'dry-monads'
 gem 'rack-cors'
-gem 'telegram-bot-ruby'
+gem 'telegram-bot-ruby', '~> 2.5'
 gem 'metainspector', '~> 5.16'
-gem 'faraday'
 gem "aws-sdk-s3", require: false
 
 gem "nokogiri", '>= 1.16'
