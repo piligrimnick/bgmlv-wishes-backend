@@ -34,9 +34,9 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
 
 
-  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  config.action_mailer.default_url_options = { host: 'lvh.me', port: 3000 }
 
-  Rails.application.routes.default_url_options[:host] = 'localhost:3000'
+  Rails.application.routes.default_url_options[:host] = 'lvh.me:3000'
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
@@ -56,8 +56,6 @@ Rails.application.configure do
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
   config.hosts = ['0.0.0.0', '127.0.0.1', 'localhost', 'lvh.me']
-
-  config.active_job.queue_adapter = :solid_queue
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
     logger           = ActiveSupport::Logger.new(STDOUT)

@@ -35,6 +35,10 @@ class WishFactory < ApplicationFactory
     structurize
   end
 
+  def default_url_options
+    Rails.application.routes.default_url_options
+  end
+
   private
 
   def structurize
@@ -45,7 +49,7 @@ class WishFactory < ApplicationFactory
       attributes[:booker] = UserStruct.new(object.booker.attributes).to_h
     end
 
-    attributes[:picture_url] = rails_blob_path(object.picture, only_path: true) if object.picture.present?
+    attributes[:picture_url] = rails_blob_path(object.picture, only_path: true) if object.picture.attached?
 
     struct.new(attributes)
   end
