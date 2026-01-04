@@ -30,9 +30,10 @@ module Wishes
         url: metadata.canonicals.first&.dig(:href) || url,
         picture: Utils::DownloadImage.call(url: metadata.images.best)
       }
-    rescue StandardError, MetaInspector::RequestError => e
+    rescue MetaInspector::RequestError => e
       {
-        body: text
+        body: text,
+        url: url
       }
     end
   end

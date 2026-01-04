@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '4.0.0'
+ruby '3.4.8'
 gem "dotenv-rails", require: 'dotenv/rails-now'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -36,7 +36,7 @@ gem 'dry-struct'
 gem 'dry-monads'
 gem 'rack-cors'
 gem 'telegram-bot-ruby'
-gem 'metainspector'
+gem 'metainspector', '~> 5.16'
 gem 'faraday'
 gem "aws-sdk-s3", require: false
 

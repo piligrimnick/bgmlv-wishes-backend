@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+$stdout.sync = true
 require_relative '../config/environment'
 
 require 'telegram/bot'
@@ -9,60 +10,62 @@ Telegram::Bot::Client.run(token, logger: Rails.logger) do |bot|
   bot.logger.info('Bot has been started')
 
   bot.listen do |message|
-    user = Users::FindOrCreateFromTelegram.call(
-      chat_id: message.chat.id,
-      username: message.from.username,
-      firstname: message.from.first_name,
-      lastname: message.from.last_name
-    )
-
-    next unless message.respond_to?(:text)
-
-    case message.text
-    when '/start'
-      bot.api.send_message(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}")
-    when '/stop'
-      bot.api.send_message(chat_id: message.chat.id, text: "Bye, #{message.from.first_name}")
-    when '/share_link'
-      bot.api.send_message(chat_id: message.chat.id, text: "https://wishes.bgmlv.com/profile/#{user.id}")
-    when '/list'
-      wishes = RepositoryRegistry.for(:wishes).filter(user_id: user.id, state: :active)
-
-      if wishes.blank?
-        bot.api.send_message(chat_id: message.chat.id, text: 'У вас еще нет желаний :(')
-        next
-      end
-
-      wishes.each do |wish|
-        bot.api.send_message(chat_id: message.chat.id, text: "#{wish.id}: #{wish.body} \n #{wish.url || ''}")
-      end
-    when /\/delete/
-      wish_id = message.text.match(/\/delete (.*)/)[1]
-
-      FactoryRegistry.for(:wish).destroy(wish_id, user_id: user.id)
-
-      bot.api.send_message(chat_id: message.chat.id, text: "Желание удалено")
-    when /\/get/
-      wish_id = message.text.match(/\/get (.*)/)[1]
-
-      next if wish_id.blank?
-
-      wish = FactoryRegistry.for(:wish).find(wish_id, user_id: user.id)
-
-      if wish.blank?
-        bot.api.send_message(chat_id: message.chat.id, text: "Желания с таким ID не существует :(")
-        next
-      end
-
-      bot.api.send_message(chat_id: message.chat.id, text: "#{wish.body} \n #{wish.url || ''}")
-    else
-      wish = Wishes::CreateFromTelegram.call(user: user, message_text: message.text)
-
-      bot.api.send_message(
+    Rails.application.reloader.wrap do
+      user = Users::FindOrCreateFromTelegram.call(
         chat_id: message.chat.id,
-        reply_to_message_id: message.message_id,
-        text: "Желание сохранено с ID: #{wish.id} :)"
+        username: message.from.username,
+        firstname: message.from.first_name,
+        lastname: message.from.last_name
       )
+
+      next unless message.respond_to?(:text)
+
+      case message.text
+      when '/start'
+        bot.api.send_message(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}")
+      when '/stop'
+        bot.api.send_message(chat_id: message.chat.id, text: "Bye, #{message.from.first_name}")
+      when '/share_link'
+        bot.api.send_message(chat_id: message.chat.id, text: "https://wishes.bgmlv.com/profile/#{user.id}")
+      when '/list'
+        wishes = RepositoryRegistry.for(:wishes).filter(user_id: user.id, state: :active)
+
+        if wishes.blank?
+          bot.api.send_message(chat_id: message.chat.id, text: 'У вас еще нет желаний :(')
+          next
+        end
+
+        wishes.each do |wish|
+          bot.api.send_message(chat_id: message.chat.id, text: "#{wish.id}: #{wish.body} \n #{wish.url || ''}")
+        end
+      when /\/delete/
+        wish_id = message.text.match(/\/delete (.*)/)[1]
+
+        FactoryRegistry.for(:wish).destroy(wish_id, user_id: user.id)
+
+        bot.api.send_message(chat_id: message.chat.id, text: "Желание удалено")
+      when /\/get/
+        wish_id = message.text.match(/\/get (.*)/)[1]
+
+        next if wish_id.blank?
+
+        wish = FactoryRegistry.for(:wish).find(wish_id, user_id: user.id)
+
+        if wish.blank?
+          bot.api.send_message(chat_id: message.chat.id, text: "Желания с таким ID не существует :(")
+          next
+        end
+
+        bot.api.send_message(chat_id: message.chat.id, text: "#{wish.body} \n #{wish.url || ''}")
+      else
+        wish = Wishes::CreateFromTelegram.call(user: user, message_text: message.text)
+
+        bot.api.send_message(
+          chat_id: message.chat.id,
+          reply_to_message_id: message.message_id,
+          text: "Желание сохранено с ID: #{wish.id} :)"
+        )
+      end
     end
   end
   rescue Telegram::Bot::Exceptions::Base => e

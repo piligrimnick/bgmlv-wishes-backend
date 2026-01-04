@@ -1,4 +1,4 @@
-FROM ruby:2.7.8-slim
+FROM ruby:3.4.8-slim
 
 # Common dependencies
 RUN apt-get update -qq \
@@ -27,6 +27,6 @@ ENV LANG=C.UTF-8 \
   BUNDLE_RETRY=3
 
 # Upgrade RubyGems and install required Bundler version
-RUN gem update --system 3.4.22 && gem install bundler:2.1.4
+RUN gem update --system 3.5.22 && gem install bundler:4.0.3
 
 WORKDIR /app
