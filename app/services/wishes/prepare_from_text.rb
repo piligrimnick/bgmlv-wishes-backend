@@ -24,9 +24,12 @@ module Wishes
       body += metadata.best_title.to_s
       body += "\n\n"
       body += metadata.best_description.to_s
+      
+      body = body.strip
+      body = text if body.blank?
 
       {
-        body: body.strip,
+        body:,
         url: metadata.canonicals.first&.dig(:href) || url,
         picture: Utils::DownloadImage.call(url: metadata.images.best)
       }
