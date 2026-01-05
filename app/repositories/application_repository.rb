@@ -39,7 +39,7 @@ class ApplicationRepository
     page = (page || 1).to_i
     per_page = (per_page || 20).to_i
 
-    total_count = scope.count
+    total_count = scope.distinct.count(:id)
     @objects = scope.limit(per_page).offset((page - 1) * per_page)
 
     {

@@ -4,7 +4,10 @@ class WishesRepository < ApplicationRepository
   end
 
   def filter(params, order: 'created_at desc', page: nil, per_page: nil)
-    scope = gateway.order(order).where(params)
+    scope = gateway
+      .includes(:user, :booking, :booker, picture_attachment: :blob)
+      .order(order)
+      .where(params)
 
     if page || per_page
       paginate(scope, page, per_page)
