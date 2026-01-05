@@ -11,10 +11,6 @@ module Api
         render json: wishes_repo.filter({ user_id: params[:user_id], state: :realised }, order: params[:o])
       end
 
-      def index
-        render json: current_user_wishes_repo.all(order: params[:o] || 'created_at desc')
-      end
-
       def show
         render json: wish
       end

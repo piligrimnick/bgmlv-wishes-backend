@@ -16,7 +16,7 @@ Rails.application.routes.draw do
 
      get 'user_wishes/:user_id', to: 'wishes#user_wishes'
      get 'realised_user_wishes/:user_id', to: 'wishes#realised_user_wishes'
-     resources :wishes do
+     resources :wishes, except: [:index] do
        member do
          put :realise
          put :book
