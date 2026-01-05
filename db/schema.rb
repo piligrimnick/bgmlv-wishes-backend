@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_31_013045) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_05_190304) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -50,6 +50,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_013045) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id", "wish_id"], name: "index_bookings_on_user_id_and_wish_id", unique: true
+    t.index ["user_id"], name: "index_bookings_on_user_id"
     t.index ["wish_id"], name: "index_bookings_on_wish_id", unique: true
   end
 
@@ -119,6 +120,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_013045) do
     t.datetime "updated_at", null: false
     t.integer "state", default: 0, null: false
     t.index ["state"], name: "index_wishes_on_state"
+    t.index ["user_id", "state", "created_at"], name: "index_wishes_on_user_id_and_state_and_created_at"
     t.index ["user_id"], name: "index_wishes_on_user_id"
   end
 
