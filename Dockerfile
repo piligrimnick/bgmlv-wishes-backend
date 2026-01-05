@@ -39,6 +39,12 @@ RUN bundle exec bootsnap precompile app/ lib/
 # Final stage for app image
 FROM base
 
+# Accept build arg for release version
+ARG RELEASE_VERSION=unknown
+
+# Set SENTRY_RELEASE environment variable
+ENV SENTRY_RELEASE=${RELEASE_VERSION}
+
 # Install packages needed for deployment
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libvips postgresql-client && \

@@ -31,6 +31,10 @@ gem 'rswag-ui'
 gem 'devise'
 gem 'doorkeeper'
 
+# Sentry для мониторинга ошибок и производительности
+gem 'sentry-ruby'
+gem 'sentry-rails'
+
 gem 'dry-initializer'
 gem 'dry-struct'
 gem 'dry-monads'
