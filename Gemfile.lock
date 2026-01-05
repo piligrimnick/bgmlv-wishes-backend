@@ -129,6 +129,8 @@ GEM
     dotenv-rails (2.8.1)
       dotenv (= 2.8.1)
       railties (>= 3.2)
+    down (5.4.2)
+      addressable (~> 2.8)
     drb (2.2.3)
     dry-core (1.2.0)
       concurrent-ruby (~> 1.0)
@@ -438,6 +440,7 @@ DEPENDENCIES
   devise
   doorkeeper
   dotenv-rails
+  down (~> 5.4)
   drb
   dry-initializer
   dry-monads

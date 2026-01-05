@@ -8,7 +8,10 @@ class WishFactory < ApplicationFactory
   def create(params = {})
     gateway.transaction do
       @object = gateway.create!(params.except(:picture))
-      @object.picture.attach(io: params[:picture], filename: @object.id) if params[:picture].present?
+      if params[:picture].present?
+        filename = params[:picture].respond_to?(:original_filename) ? params[:picture].original_filename : "image"
+        @object.picture.attach(io: params[:picture], filename: "#{@object.id}_#{filename}")
+      end
       @object.save
     end
 
