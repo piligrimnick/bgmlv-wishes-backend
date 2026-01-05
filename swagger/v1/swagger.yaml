@@ -84,15 +84,46 @@ paths:
       summary: List users
       tags:
       - Users
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                oneOf:
+                  - type: array
+                    items:
+                      type: object
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                      metadata:
+                        type: object
+                        properties:
+                          total_count:
+                            type: integer
+                          page:
+                            type: integer
+                          per_page:
+                            type: integer
+                          total_pages:
+                            type: integer
   "/api/users/{id}":
     parameters:
     - name: id
@@ -157,6 +188,18 @@ paths:
         required: true
         schema:
           type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
       - name: o
         in: query
         required: false
@@ -169,9 +212,27 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                oneOf:
+                  - type: array
+                    items:
+                      type: object
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                      metadata:
+                        type: object
+                        properties:
+                          total_count:
+                            type: integer
+                          page:
+                            type: integer
+                          per_page:
+                            type: integer
+                          total_pages:
+                            type: integer
   "/api/realised_user_wishes/{user_id}":
     get:
       summary: Get realised user wishes
@@ -186,6 +247,18 @@ paths:
         required: true
         schema:
           type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
       - name: o
         in: query
         required: false
@@ -198,9 +271,27 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                oneOf:
+                  - type: array
+                    items:
+                      type: object
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                      metadata:
+                        type: object
+                        properties:
+                          total_count:
+                            type: integer
+                          page:
+                            type: integer
+                          per_page:
+                            type: integer
+                          total_pages:
+                            type: integer
   "/api/wishes":
     get:
       summary: List current user wishes

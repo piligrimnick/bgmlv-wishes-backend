@@ -69,4 +69,26 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       end
     end
   end
+
+  describe 'GET #index' do
+    let!(:users) { create_list(:user, 15) }
+
+    it 'returns paginated users when using pagination' do
+      get :index, params: { page: 1, per_page: 5 }
+      json_response = JSON.parse(response.body)
+      
+      expect(json_response).to have_key('data')
+      expect(json_response).to have_key('metadata')
+      expect(json_response['data'].size).to eq(5)
+      expect(json_response['metadata']['total_count']).to be >= 15
+    end
+
+    it 'returns standard array without pagination params' do
+      get :index
+      json_response = JSON.parse(response.body)
+      
+      expect(json_response).to be_a(Array)
+      expect(json_response.size).to be >= 15
+    end
+  end
 end

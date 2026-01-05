@@ -4,7 +4,7 @@ module Api
       skip_before_action :doorkeeper_authorize!, only: %i[index show]
 
       def index
-        render json: user_repository.all
+        render json: user_repository.all(page: params[:page], per_page: params[:per_page])
       end
 
       def show

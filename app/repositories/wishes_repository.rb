@@ -3,9 +3,14 @@ class WishesRepository < ApplicationRepository
     super
   end
 
-  def filter(params, order: 'created_at desc')
-    @objects = gateway.order(order).where(params)
+  def filter(params, order: 'created_at desc', page: nil, per_page: nil)
+    scope = gateway.order(order).where(params)
 
-    structurize
+    if page || per_page
+      paginate(scope, page, per_page)
+    else
+      @objects = scope
+      structurize
+    end
   end
 end
