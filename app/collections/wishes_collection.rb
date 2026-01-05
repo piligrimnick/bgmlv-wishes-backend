@@ -1,10 +1,4 @@
 class WishesCollection < ApplicationCollection
-  include Rails.application.routes.url_helpers
-
-  def default_url_options
-    Rails.application.routes.default_url_options
-  end
-
   def initialize(objects, struct = WishStruct)
     objects = objects.map do |object|
       attributes = object.attributes

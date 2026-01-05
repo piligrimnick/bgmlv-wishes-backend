@@ -208,6 +208,13 @@ paths:
       - Wishes
       security:
       - bearer_auth: []
+      parameters:
+      - name: o
+        in: query
+        required: false
+        description: Order
+        schema:
+          type: string
       responses:
         '200':
           description: Success

@@ -12,7 +12,7 @@ module Api
       end
 
       def index
-        render json: current_user_wishes_repo.all
+        render json: current_user_wishes_repo.all(order: params[:o] || 'created_at desc')
       end
 
       def show

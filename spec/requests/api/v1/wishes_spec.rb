@@ -45,6 +45,7 @@ RSpec.describe 'Wishes API', type: :request do
       tags 'Wishes'
       produces 'application/json'
       security [bearer_auth: []]
+      parameter name: :o, in: :query, type: :string, required: false, description: 'Order'
 
       response '200', 'Success' do
         schema type: :array, items: { type: :object }

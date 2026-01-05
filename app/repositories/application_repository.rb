@@ -5,8 +5,8 @@ class ApplicationRepository
     @struct = struct
   end
 
-  def all
-    @objects = gateway.all
+  def all(order: nil)
+    @objects = order ? gateway.order(order).all : gateway.all
 
     structurize
   end
