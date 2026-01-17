@@ -32,8 +32,11 @@ paths:
                     type: string
                     description: Token scope
                   created_at:
-                    type: integer
-                    description: Token creation timestamp
+                    type: string
+                    description: User creation timestamp
+                  updated_at:
+                    type: string
+                    description: User update timestamp
                   id:
                     type: integer
                     description: User ID
@@ -49,6 +52,10 @@ paths:
                     type: string
                     nullable: true
                     description: Last name
+                  telegram_id:
+                    type: string
+                    nullable: true
+                    description: Telegram ID
                 required:
                 - access_token
                 - token_type
@@ -284,72 +291,6 @@ paths:
       responses:
         '200':
           description: includes friendship status
-  "/api/users":
-    get:
-      summary: List users
-      tags:
-      - Users
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-  "/api/users/{id}":
-    parameters:
-    - name: id
-      in: path
-      description: User ID
-      required: true
-      schema:
-        type: string
-    get:
-      summary: Get a user
-      tags:
-      - Users
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-    put:
-      summary: Update a user
-      tags:
-      - Users
-      parameters: []
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-        '403':
-          description: Forbidden
-        '422':
-          description: Unprocessable Entity
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                    password:
-                      type: string
-                    firstname:
-                      type: string
-                    lastname:
-                      type: string
   "/api/user_wishes/{user_id}":
     get:
       summary: Get user wishes
