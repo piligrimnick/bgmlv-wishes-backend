@@ -1,17 +1,16 @@
 module Users
   class DeleteInactiveService < ApplicationService
     def call
-      inactive_users = RepositoryRegistry.for(:users).inactive
+      result = Users::Queries::ListInactiveUsers.call
+
+      return Failure(:query_failed) if result.failure?
+
+      inactive_users = result.value!
+      user_ids = inactive_users.map(&:id)
       
-      count = inactive_users.count
-      Rails.logger.info "Found #{count} inactive users for deletion"
+      User.where(id: user_ids).destroy_all
       
-      if count > 0
-        ids = inactive_users.map(&:id)
-        User.where(id: ids).destroy_all
-      end
-      
-      { deleted_count: count }
+      Success(user_ids.count)
     end
   end
 end

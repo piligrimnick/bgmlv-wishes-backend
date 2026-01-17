@@ -11,12 +11,16 @@ Telegram::Bot::Client.run(token, logger: Rails.logger) do |bot|
 
   bot.listen do |message|
     Rails.application.reloader.wrap do
-      user = Users::FindOrCreateFromTelegram.call(
+      result = Users::FindOrCreateFromTelegram.call(
         chat_id: message.chat.id,
         username: message.from.username,
         firstname: message.from.first_name,
         lastname: message.from.last_name
       )
+
+      next unless result.success?
+      
+      user = result.value!
 
       next unless message.respond_to?(:text)
 
@@ -28,43 +32,57 @@ Telegram::Bot::Client.run(token, logger: Rails.logger) do |bot|
       when '/share_link'
         bot.api.send_message(chat_id: message.chat.id, text: "https://wishes.bgmlv.com/profile/#{user.id}")
       when '/list'
-        wishes = RepositoryRegistry.for(:wishes).filter(user_id: user.id, state: :active)
+        result = Wishes::Queries::ListWishes.call(
+          filters: { user_id: user.id, state: :active }
+        )
 
-        if wishes.blank?
+        if result.failure? || result.value!.blank?
           bot.api.send_message(chat_id: message.chat.id, text: 'У вас еще нет желаний :(')
           next
         end
 
-        wishes.each do |wish|
+        result.value!.each do |wish|
           bot.api.send_message(chat_id: message.chat.id, text: "#{wish.id}: #{wish.body} \n #{wish.url || ''}")
         end
       when /\/delete/
         wish_id = message.text.match(/\/delete (.*)/)[1]
 
-        FactoryRegistry.for(:wish).destroy(wish_id, user_id: user.id)
+        result = Wishes::Commands::DeleteWish.call(id: wish_id, filters: { user_id: user.id })
 
-        bot.api.send_message(chat_id: message.chat.id, text: "Желание удалено")
+        if result.success?
+          bot.api.send_message(chat_id: message.chat.id, text: "Желание удалено")
+        else
+          bot.api.send_message(chat_id: message.chat.id, text: "Ошибка удаления желания")
+        end
       when /\/get/
         wish_id = message.text.match(/\/get (.*)/)[1]
 
         next if wish_id.blank?
 
-        wish = FactoryRegistry.for(:wish).find(wish_id, user_id: user.id)
+        result = Wishes::Queries::FindWish.call(id: wish_id, filters: { user_id: user.id })
 
-        if wish.blank?
+        if result.failure?
           bot.api.send_message(chat_id: message.chat.id, text: "Желания с таким ID не существует :(")
           next
         end
 
+        wish = result.value!
         bot.api.send_message(chat_id: message.chat.id, text: "#{wish.body} \n #{wish.url || ''}")
       else
-        wish = Wishes::CreateFromTelegram.call(user: user, message_text: message.text)
+        result = Wishes::CreateFromTelegram.call(user: { id: user.id }, message_text: message.text)
 
-        bot.api.send_message(
-          chat_id: message.chat.id,
-          reply_to_message_id: message.message_id,
-          text: "Желание сохранено с ID: #{wish.id} :)"
-        )
+        if result.success?
+          bot.api.send_message(
+            chat_id: message.chat.id,
+            reply_to_message_id: message.message_id,
+            text: "Желание сохранено с ID: #{result.value!.id} :)"
+          )
+        else
+          bot.api.send_message(
+            chat_id: message.chat.id,
+            text: "Ошибка сохранения желания"
+          )
+        end
       end
     end
   end

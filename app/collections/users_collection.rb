@@ -1,2 +1,0 @@
-class UsersCollection < ApplicationCollection
-end

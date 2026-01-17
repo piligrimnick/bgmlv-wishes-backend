@@ -8,13 +8,10 @@ module Wishes
     end
 
     def call
-      wish_factory.create(wish.to_h.symbolize_keys)
-    end
-
-    private
-
-    def wish_factory
-      @wish_factory ||= WishFactory.new(gateway: ::Wish.where(user_id: user_id))
+      Wishes::Commands::CreateWish.call(
+        user_id: user_id,
+        **wish.to_h.symbolize_keys
+      )
     end
   end
 end

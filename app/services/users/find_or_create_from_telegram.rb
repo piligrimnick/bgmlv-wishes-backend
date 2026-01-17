@@ -6,18 +6,12 @@ module Users
     option :lastname, optional: true
 
     def call
-      user_factory.find_or_create_from_telegram(
+      Users::Commands::FindOrCreateFromTelegram.call(
         chat_id: chat_id,
         username: username,
         firstname: firstname,
         lastname: lastname
       )
-    end
-
-    private
-
-    def user_factory
-      @user_factory ||= FactoryRegistry.for(:user)
     end
   end
 end

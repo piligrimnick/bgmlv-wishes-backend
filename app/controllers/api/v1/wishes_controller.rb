@@ -4,66 +4,122 @@ module Api
       skip_before_action :doorkeeper_authorize!, only: [:user_wishes]
 
       def user_wishes
-        render json: wishes_repo.filter({ user_id: params[:user_id], state: :active }, order: params[:o], page: params[:page],
-                                                                                        per_page: params[:per_page])
+        result = ::Wishes::Queries::ListWishes.call(
+          filters: { user_id: params[:user_id], state: :active },
+          order: params[:o] || 'created_at desc',
+          page: params[:page],
+          per_page: params[:per_page]
+        )
+        
+        render_result(result)
       end
 
       def realised_user_wishes
-        render json: wishes_repo.filter({ user_id: params[:user_id], state: :realised }, order: params[:o], page: params[:page],
-                                                                                         per_page: params[:per_page])
+        result = ::Wishes::Queries::ListWishes.call(
+          filters: { user_id: params[:user_id], state: :realised },
+          order: params[:o] || 'created_at desc',
+          page: params[:page],
+          per_page: params[:per_page]
+        )
+        
+        render_result(result)
+      end
+
+      def index
+        result = ::Wishes::Queries::ListWishes.call(
+          filters: { user_id: current_user.id, state: :active },
+          order: params[:o] || 'created_at desc',
+          page: params[:page],
+          per_page: params[:per_page]
+        )
+        
+        render_result(result)
       end
 
       def show
-        render json: wish
+        result = ::Wishes::Queries::FindWish.call(id: params[:id])
+        render_result(result)
       end
 
       def create
-        render json: Wishes::Create.call(user_id: current_user.id, wish: wish_params)
+        result = ::Wishes::Create.call(user_id: current_user.id, wish: wish_params)
+        render_result(result, status: :created)
       end
 
       def update
-        render json: wish_factory.update(params[:id], wish_params)
+        result = ::Wishes::Commands::UpdateWish.call(
+          id: params[:id],
+          **wish_params.to_h.symbolize_keys
+        )
+        render_result(result)
       end
 
       def destroy
-        render json: wish_factory.destroy(wish.id)
+        result = ::Wishes::Commands::DeleteWish.call(id: params[:id])
+        
+        if result.success?
+          render json: {}, status: :ok
+        else
+          render_error(result.failure)
+        end
       end
 
       def realise
-        @wish = Wishes::Realise.call(wish_id: wish.id)
-        render json: wish
+        result = ::Wishes::Realise.call(wish_id: params[:id])
+        render_result(result)
       end
 
       def book
-        @wish = wish_factory.book(wish_id: wish.id, booker_id: current_user.id)
-        render json: wish
+        result = ::Wishes::Commands::BookWish.call(
+          wish_id: params[:id],
+          booker_id: current_user.id
+        )
+        render_result(result)
       end
 
       def unbook
-        @wish = wish_factory.unbook(wish_id: wish.id, booker_id: current_user.id)
-        render json: wish
+        result = ::Wishes::Commands::UnbookWish.call(
+          wish_id: params[:id],
+          booker_id: current_user.id
+        )
+        render_result(result)
       end
 
       private
 
-      def wish
-        @wish ||= wish_factory.find(params[:id])
-      end
-
-      def current_user_wishes_repo
-        @current_user_wishes_repo ||= WishesRepository.new(gateway: current_user.wishes)
-      end
-
-      def wishes_repo
-        @wishes_repo ||= RepositoryRegistry.for(:wishes)
-      end
-
-      def wish_factory
-        @wish_factory ||= FactoryRegistry.for(:wish)
-      end
-
       def wish_params
         params.require(:wish).permit(%i[body url])
+      end
+
+      def render_result(result, status: :ok)
+        if result.success?
+          data = result.value!
+          
+          # Handle pagination
+          if data.is_a?(Hash) && data.key?(:data)
+            render json: {
+              data: WishSerializer.collection(data[:data]),
+              metadata: data[:metadata]
+            }, status: status
+          elsif data.is_a?(Array)
+            render json: WishSerializer.collection(data), status: status
+          else
+            render json: WishSerializer.new(data).as_json, status: status
+          end
+        else
+          render_error(result.failure, status: :unprocessable_entity)
+        end
+      end
+
+      def render_error(error, status: :unprocessable_entity)
+        case error
+        when :not_found
+          render json: { error: 'Not found' }, status: :not_found
+        when ActiveModel::Errors
+          render json: { errors: error }, status: status
+        else
+          render json: { error: error }, status: status
+        end
       end
     end
   end

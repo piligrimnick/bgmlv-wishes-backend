@@ -10,7 +10,7 @@ module Telegram
     private
 
     def user
-      @user ||= user_factory.find_or_create_from_telegram(
+      @user ||= Users::Commands::FindOrCreateFromTelegram.call(
         chat_id: auth_data['id'],
         username: auth_data['username'],
         firstname: auth_data['first_name'],
@@ -28,10 +28,6 @@ module Telegram
 
     def secret_key
       OpenSSL::Digest::SHA256.new.digest(ENV['TELEGRAM_TOKEN'])
-    end
-
-    def user_factory
-      @user_factory ||= FactoryRegistry.for(:user)
     end
   end
 end

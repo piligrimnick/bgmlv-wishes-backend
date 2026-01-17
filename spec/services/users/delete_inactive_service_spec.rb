@@ -17,7 +17,8 @@ RSpec.describe Users::DeleteInactiveService do
 
     it 'returns the count of deleted users' do
       result = described_class.call
-      expect(result[:deleted_count]).to eq(1)
+      expect(result).to be_success
+      expect(result.value!).to eq(1)
     end
   end
 end

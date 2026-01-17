@@ -4,14 +4,23 @@ module Api
       skip_before_action :doorkeeper_authorize!, only: %i[index show]
 
       def index
-        render json: user_repository.all(page: params[:page], per_page: params[:per_page])
+        result = ::Users::Queries::ListUsers.call(
+          page: params[:page],
+          per_page: params[:per_page]
+        )
+        
+        render_result(result, secure: false)
       end
 
       def show
-        if current_resource_owner&.id.to_s == params[:id].to_s
-          render json: user.attributes
+        result = ::Users::Queries::FindUser.call(id: params[:id])
+        
+        if result.success?
+          user = result.value!
+          secure = current_resource_owner&.id.to_s == params[:id].to_s
+          render json: UserSerializer.new(user).as_json(secure: secure)
         else
-          render json: user.secure_attributes
+          render_error(result.failure)
         end
       end
 
@@ -21,30 +30,53 @@ module Api
           return
         end
 
-        begin
-          updated_user = user_factory.update(params[:id], user_params)
-          render json: updated_user.secure_attributes
-        rescue ActiveRecord::RecordInvalid => e
-          render json: { errors: e.record.errors }, status: :unprocessable_entity
+        result = ::Users::Commands::UpdateUser.call(
+          id: params[:id],
+          **user_params.to_h.symbolize_keys
+        )
+        
+        if result.success?
+          render json: UserSerializer.new(result.value!).as_json(secure: true)
+        else
+          render_error(result.failure)
         end
       end
 
       private
 
-      def user
-        @user ||= user_factory.find(params[:id])
-      end
-
       def user_params
         params.require(:user).permit(:email, :password, :firstname, :lastname)
       end
 
-      def user_factory
-        @user_factory ||= FactoryRegistry.for(:user)
+      def render_result(result, secure: false)
+        if result.success?
+          data = result.value!
+          
+          # Handle pagination
+          if data.is_a?(Hash) && data.key?(:data)
+            render json: {
+              data: UserSerializer.collection(data[:data], secure: secure),
+              metadata: data[:metadata]
+            }
+          elsif data.is_a?(Array)
+            render json: UserSerializer.collection(data, secure: secure)
+          else
+            render json: UserSerializer.new(data).as_json(secure: secure)
+          end
+        else
+          render_error(result.failure)
+        end
       end
 
-      def user_repository
-        @user_repository ||= RepositoryRegistry.for(:users)
+      def render_error(error, status: :unprocessable_entity)
+        case error
+        when :not_found
+          render json: { error: 'Not found' }, status: :not_found
+        when ActiveModel::Errors
+          render json: { errors: error }, status: status
+        else
+          render json: { error: error }, status: status
+        end
       end
     end
   end
