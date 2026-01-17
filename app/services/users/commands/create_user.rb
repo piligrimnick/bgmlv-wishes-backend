@@ -21,6 +21,8 @@ module Users
         Success(user)
       rescue ActiveRecord::RecordInvalid => e
         Failure(e.record.errors)
+      rescue ActiveRecord::RecordNotUnique
+        Failure(:duplicate)
       end
     end
   end
