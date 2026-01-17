@@ -6,33 +6,48 @@ module Friendships
       option :per_page, optional: true
 
       def call
-        # Get friend IDs from both directions
-        friend_ids_as_requester = Friendship
+        # Get friendships from both directions with friend data
+        friendships_as_requester = Friendship
+          .includes(:addressee)
           .where(requester_id: user_id, status: :accepted)
-          .pluck(:addressee_id)
 
-        friend_ids_as_addressee = Friendship
+        friendships_as_addressee = Friendship
+          .includes(:requester)
           .where(addressee_id: user_id, status: :accepted)
-          .pluck(:requester_id)
 
-        friend_ids = friend_ids_as_requester + friend_ids_as_addressee
+        # Build array of friends with friendship_id
+        friends = []
 
-        scope = User.where(id: friend_ids).order(created_at: :desc)
+        friendships_as_requester.each do |friendship|
+          friend = friendship.addressee
+          friend.define_singleton_method(:friendship_id) { friendship.id }
+          friends << friend
+        end
+
+        friendships_as_addressee.each do |friendship|
+          friend = friendship.requester
+          friend.define_singleton_method(:friendship_id) { friendship.id }
+          friends << friend
+        end
+
+        # Sort by created_at desc
+        friends.sort_by! { |f| -f.created_at.to_i }
 
         if page || per_page
-          paginate(scope)
+          paginate_array(friends)
         else
-          Success(scope.to_a)
+          Success(friends)
         end
       end
 
       private
 
-      def paginate(scope)
+      def paginate_array(array)
         page_num = (page || 1).to_i
         per_page_num = (per_page || 20).to_i
-        total_count = scope.count
-        users = scope.limit(per_page_num).offset((page_num - 1) * per_page_num).to_a
+        total_count = array.size
+        offset = (page_num - 1) * per_page_num
+        users = array[offset, per_page_num] || []
 
         Success(
           data: users,

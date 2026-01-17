@@ -17,6 +17,7 @@ class UserSerializer
     }
 
     data[:email] = user.email if secure
+    data[:friendship_id] = user.friendship_id if user.respond_to?(:friendship_id)
 
     data
   end
