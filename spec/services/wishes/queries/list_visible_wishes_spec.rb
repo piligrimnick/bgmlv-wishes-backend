@@ -29,6 +29,20 @@ RSpec.describe Wishes::Queries::ListVisibleWishes, type: :service do
       end
     end
 
+    context 'when owner views own wishes with string owner_id (from params)' do
+      let(:params) { { owner_id: owner.id.to_s, viewer_id: owner.id, state: :active } }
+
+      it 'returns success' do
+        expect(list_visible).to be_success
+      end
+
+      it 'returns all active wishes' do
+        result = list_visible.value!
+        wishes = result.is_a?(Hash) ? result[:data] : result
+        expect(wishes.size).to eq(2)
+      end
+    end
+
     context 'when friend views wishes' do
       let(:params) { { owner_id: owner.id, viewer_id: friend.id, state: :active } }
 

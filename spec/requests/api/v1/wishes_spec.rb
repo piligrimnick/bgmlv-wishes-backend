@@ -17,6 +17,8 @@ RSpec.describe 'Wishes API', type: :request do
       produces 'application/json'
       parameter name: :user_id, in: :path, type: :string, description: 'User ID'
       parameter name: :o, in: :query, type: :string, required: false, description: 'Order'
+      parameter name: :page, in: :query, type: :integer, required: false, description: 'Page number'
+      parameter name: :per_page, in: :query, type: :integer, required: false, description: 'Items per page'
 
       response '200', 'Success' do
         schema type: :object,
@@ -24,6 +26,9 @@ RSpec.describe 'Wishes API', type: :request do
             data: { type: :array, items: { type: :object } },
             metadata: { type: :object }
           }
+
+        let(:page) { 1 }
+        let(:per_page) { 20 }
 
         before do
           create(:wish, user: user)
@@ -41,6 +46,8 @@ RSpec.describe 'Wishes API', type: :request do
       security [bearer_auth: []]
       parameter name: :user_id, in: :path, type: :string, description: 'User ID'
       parameter name: :o, in: :query, type: :string, required: false, description: 'Order'
+      parameter name: :page, in: :query, type: :integer, required: false, description: 'Page number'
+      parameter name: :per_page, in: :query, type: :integer, required: false, description: 'Items per page'
 
       response '200', 'Success' do
         schema type: :object,
@@ -48,6 +55,9 @@ RSpec.describe 'Wishes API', type: :request do
             data: { type: :array, items: { type: :object } },
             metadata: { type: :object }
           }
+
+        let(:page) { 1 }
+        let(:per_page) { 20 }
 
         before do
           create(:wish, user: user, state: :realised)

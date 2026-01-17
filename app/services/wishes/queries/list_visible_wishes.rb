@@ -1,17 +1,21 @@
 module Wishes
   module Queries
     class ListVisibleWishes < ApplicationService
-      option :owner_id  # Whose wishes to fetch
-      option :viewer_id, optional: true  # Who is viewing
+      option :owner_id # Whose wishes to fetch
+      option :viewer_id, optional: true # Who is viewing
       option :state, default: -> { :active }
       option :order, default: -> { 'created_at desc' }
       option :page, optional: true
       option :per_page, optional: true
 
       def call
+        # Normalize IDs to integers for comparison
+        normalized_owner_id = owner_id.to_i
+        normalized_viewer_id = viewer_id&.to_i
+
         # Owner can see their own wishes
-        if viewer_id == owner_id
-          filters = { user_id: owner_id, state: state }
+        if normalized_viewer_id == normalized_owner_id
+          filters = { user_id: normalized_owner_id, state: state }
           return ::Wishes::Queries::ListWishes.call(
             filters: filters,
             order: order,
@@ -25,13 +29,13 @@ module Wishes
 
         # Check friendship
         are_friends = Friendship.exists?(
-          requester_id: [viewer_id, owner_id],
-          addressee_id: [viewer_id, owner_id],
+          requester_id: [normalized_viewer_id, normalized_owner_id],
+          addressee_id: [normalized_viewer_id, normalized_owner_id],
           status: :accepted
         )
 
         if are_friends
-          filters = { user_id: owner_id, state: state }
+          filters = { user_id: normalized_owner_id, state: state }
           ::Wishes::Queries::ListWishes.call(
             filters: filters,
             order: order,

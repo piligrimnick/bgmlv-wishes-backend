@@ -291,6 +291,88 @@ paths:
       responses:
         '200':
           description: includes friendship status
+  "/api/users":
+    get:
+      summary: List users
+      tags:
+      - Users
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  metadata:
+                    type: object
+  "/api/users/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: User ID
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Get a user
+      tags:
+      - Users
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+    put:
+      summary: Update a user
+      tags:
+      - Users
+      security:
+      - bearer_auth: []
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      type: string
+                    firstname:
+                      type: string
+                    lastname:
+                      type: string
   "/api/user_wishes/{user_id}":
     get:
       summary: Get user wishes
@@ -309,6 +391,18 @@ paths:
         description: Order
         schema:
           type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -343,6 +437,18 @@ paths:
         description: Order
         schema:
           type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
