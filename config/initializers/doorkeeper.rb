@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+# Using require_dependency if needed, or relying on autoloading if configured.
+# We must use the class constant, not string, or ensure registration is picked up.
+# The warning suggests precise registration.
 require 'doorkeeper/request/assertion'
 
 Doorkeeper::GrantFlow.register(
-  :assertion,
-  strategy_class_name: 'Doorkeeper::Request::Assertion'
+  'assertion',
+  grant_type_strategy: Doorkeeper::Request::Assertion
 )
 
 

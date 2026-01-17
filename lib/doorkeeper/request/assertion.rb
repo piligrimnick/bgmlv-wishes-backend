@@ -46,10 +46,19 @@ module Doorkeeper
                            auth_data.to_h
                          end
 
-        Telegram::Auth.call(
+        result = Telegram::Auth.call(
           auth_data: auth_data_hash.except('hash', :hash),
           secure_hash: auth_data_hash['hash'] || auth_data_hash[:hash]
         )
+
+        if result.respond_to?(:success?) && result.success?
+          result.success
+        elsif result.respond_to?(:failure?)
+          nil
+        else
+          # Fallback for non-monad return just in case
+          result
+        end
       end
 
       class AssertionRequest
