@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :doorkeeper_access_token, class: 'Doorkeeper::AccessToken' do
     resource_owner_id { create(:user).id }
     expires_in { 2.hours }
-    association :application, factory: :doorkeeper_application
+    application factory: %i[doorkeeper_application]
   end
 
   factory :doorkeeper_application, class: 'Doorkeeper::Application' do

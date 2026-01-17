@@ -10,7 +10,7 @@ module Api
           page: params[:page],
           per_page: params[:per_page]
         )
-        
+
         render_result(result)
       end
 
@@ -21,7 +21,7 @@ module Api
           page: params[:page],
           per_page: params[:per_page]
         )
-        
+
         render_result(result)
       end
 
@@ -32,7 +32,7 @@ module Api
           page: params[:page],
           per_page: params[:per_page]
         )
-        
+
         render_result(result)
       end
 
@@ -56,7 +56,7 @@ module Api
 
       def destroy
         result = ::Wishes::Commands::DeleteWish.call(id: params[:id])
-        
+
         if result.success?
           render json: {}, status: :ok
         else
@@ -88,13 +88,13 @@ module Api
       private
 
       def wish_params
-        params.require(:wish).permit(%i[body url])
+        params.expect(wish: [%i[body url]])
       end
 
       def render_result(result, status: :ok)
         if result.success?
           data = result.value!
-          
+
           # Handle pagination
           if data.is_a?(Hash) && data.key?(:data)
             render json: {

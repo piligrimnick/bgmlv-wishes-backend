@@ -6,14 +6,12 @@ module Wishes
 
       def call
         wish = Wish.find(wish_id)
-        
-        if wish.booking&.user_id == booker_id
-          wish.booking.destroy!
-        end
-        
+
+        wish.booking.destroy! if wish.booking&.user_id == booker_id
+
         wish.reload
         Success(wish)
-      rescue ActiveRecord::RecordNotFound => e
+      rescue ActiveRecord::RecordNotFound
         Failure(:not_found)
       end
     end

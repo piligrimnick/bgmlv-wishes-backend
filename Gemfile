@@ -68,8 +68,14 @@ group :development, :test do
   gem 'pry-rails'
   gem 'simplecov'
   gem 'factory_bot_rails'
-  gem 'rubocop'
+  gem 'rubocop', '~> 1.62'
+  gem 'rubocop-rails'
+  gem 'rubocop-factory_bot'
+  gem 'rubocop-rspec'
+  gem 'rubocop-rspec_rails'
+  gem 'rubocop-performance'
 end
+
 
 group :development do
   gem 'listen', '>= 3.5'

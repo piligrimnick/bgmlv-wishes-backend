@@ -7,16 +7,16 @@ module Wishes
 
       def call
         wish = Wish.find(id)
-        
+
         update_params = {}
         update_params[:body] = body if body
         update_params[:url] = url if url
-        
+
         wish.update!(update_params)
         wish.reload
 
         Success(wish)
-      rescue ActiveRecord::RecordNotFound => e
+      rescue ActiveRecord::RecordNotFound
         Failure(:not_found)
       rescue ActiveRecord::RecordInvalid => e
         Failure(e.record.errors)

@@ -9,7 +9,7 @@ module Wishes
         wish.reload
 
         Success(wish)
-      rescue ActiveRecord::RecordNotFound => e
+      rescue ActiveRecord::RecordNotFound
         Failure(:not_found)
       end
     end

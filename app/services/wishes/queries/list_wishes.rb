@@ -8,9 +8,9 @@ module Wishes
 
       def call
         scope = Wish
-          .includes(:user, :booking, :booker, picture_attachment: :blob)
-          .where(filters)
-          .order(order)
+                .includes(:user, :booking, :booker, picture_attachment: :blob)
+                .where(filters)
+                .order(order)
 
         if page || per_page
           paginate(scope)

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Api::V1::WishesController, type: :controller do
+RSpec.describe Api::V1::WishesController do
   let(:user) { create(:user) }
   let(:token) { create(:doorkeeper_access_token, resource_owner_id: user.id, scopes: 'read write') }
 
@@ -14,8 +14,8 @@ RSpec.describe Api::V1::WishesController, type: :controller do
 
     it 'returns paginated active wishes' do
       get :user_wishes, params: { user_id: user.id, page: 1, per_page: 5 }
-      json_response = JSON.parse(response.body)
-      
+      json_response = response.parsed_body
+
       expect(json_response).to have_key('data')
       expect(json_response).to have_key('metadata')
       expect(json_response['data'].size).to eq(5)
@@ -29,8 +29,8 @@ RSpec.describe Api::V1::WishesController, type: :controller do
 
     it 'returns paginated realised wishes' do
       get :realised_user_wishes, params: { user_id: user.id, page: 1, per_page: 5 }
-      json_response = JSON.parse(response.body)
-      
+      json_response = response.parsed_body
+
       expect(json_response).to have_key('data')
       expect(json_response).to have_key('metadata')
       expect(json_response['data'].size).to eq(5)

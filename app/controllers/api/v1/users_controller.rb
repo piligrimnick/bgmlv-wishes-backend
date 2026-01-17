@@ -8,13 +8,13 @@ module Api
           page: params[:page],
           per_page: params[:per_page]
         )
-        
+
         render_result(result, secure: false)
       end
 
       def show
         result = ::Users::Queries::FindUser.call(id: params[:id])
-        
+
         if result.success?
           user = result.value!
           secure = current_resource_owner&.id.to_s == params[:id].to_s
@@ -34,7 +34,7 @@ module Api
           id: params[:id],
           **user_params.to_h.symbolize_keys
         )
-        
+
         if result.success?
           render json: UserSerializer.new(result.value!).as_json(secure: true)
         else
@@ -45,13 +45,13 @@ module Api
       private
 
       def user_params
-        params.require(:user).permit(:email, :password, :firstname, :lastname)
+        params.expect(user: %i[email password firstname lastname])
       end
 
       def render_result(result, secure: false)
         if result.success?
           data = result.value!
-          
+
           # Handle pagination
           if data.is_a?(Hash) && data.key?(:data)
             render json: {

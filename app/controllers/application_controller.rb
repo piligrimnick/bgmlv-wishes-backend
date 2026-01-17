@@ -25,7 +25,7 @@ class ApplicationController < ActionController::API
 
   def current_resource_owner
     return @current_resource_owner if defined?(@current_resource_owner)
-    
+
     @current_resource_owner = doorkeeper_token ? User.find(doorkeeper_token.resource_owner_id) : nil
   end
 

@@ -4,7 +4,7 @@ module Telegram
     option :secure_hash
 
     def call
-      return user if check_hash == secure_hash
+      user if check_hash == secure_hash
     end
 
     private
@@ -27,7 +27,7 @@ module Telegram
     end
 
     def secret_key
-      OpenSSL::Digest::SHA256.new.digest(ENV['TELEGRAM_TOKEN'])
+      OpenSSL::Digest.new('SHA256').digest(ENV.fetch('TELEGRAM_TOKEN', nil))
     end
   end
 end

@@ -11,28 +11,28 @@ module Doorkeeper
 
       def client
         return nil unless credentials
-        
+
         # Doorkeeper::Application.find_by(uid: ...) works for ActiveRecord
         # If credentials.uid is present
         return nil if credentials.uid.blank?
 
         app = Doorkeeper::Application.find_by(uid: credentials.uid)
-        
+
         # Validate secret if present. Note: Client Authentication usually handled by `server.credentials` returning valid object IF it validated?
         # Doorkeeper::OAuth::Client::Credentials validates internally if constructed with validation?
         # Usually Strategy just gets credentials.
-        
+
         # If we trust credentials.secret (it comes from params), we must compare.
         # But for assertion grant (Telegram), client auth might be optional.
-        
+
         if app && app.secret == credentials.secret
-           app
+          app
         else
-           # If client authentication fails, we should probably fail? 
-           # Or just treat as public if we support that?
-           # For now, if provided but invalid, return nil (fail auth??)
-           # If we return nil, it's like no client.
-           nil
+          # If client authentication fails, we should probably fail?
+          # Or just treat as public if we support that?
+          # For now, if provided but invalid, return nil (fail auth??)
+          # If we return nil, it's like no client.
+          nil
         end
       end
 
@@ -69,21 +69,19 @@ module Doorkeeper
         end
 
         def authorize
-          unless @resource_owner
-             return Doorkeeper::OAuth::ErrorResponse.new(name: :invalid_grant, state: nil)
-          end
-          
+          return Doorkeeper::OAuth::ErrorResponse.new(name: :invalid_grant, state: nil) unless @resource_owner
+
           # Logic to create access token
           # Note: Doorkeeper::AccessToken is the model
-          
+
           token = Doorkeeper::AccessToken.create!(
-             application_id: @client&.id,
-             resource_owner_id: @resource_owner.id,
-             expires_in: Doorkeeper.configuration.access_token_expires_in.to_i,
-             scopes: Doorkeeper.configuration.default_scopes.to_s,
-             use_refresh_token: false 
+            application_id: @client&.id,
+            resource_owner_id: @resource_owner.id,
+            expires_in: Doorkeeper.configuration.access_token_expires_in.to_i,
+            scopes: Doorkeeper.configuration.default_scopes.to_s,
+            use_refresh_token: false
           )
-          
+
           Doorkeeper::OAuth::TokenResponse.new(token)
         end
       end

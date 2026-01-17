@@ -5,8 +5,8 @@ module Wishes
       option :filters, default: -> { {} }
 
       def call
-        wish = Wish.where(filters.merge(id: id)).take
-        
+        wish = Wish.find_by(filters.merge(id: id))
+
         if wish
           wish.destroy!
           Success(true)

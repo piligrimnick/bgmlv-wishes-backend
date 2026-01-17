@@ -8,12 +8,12 @@ module Users
 
       def call
         user = User
-          .create_with(
-            username: username,
-            firstname: firstname,
-            lastname: lastname
-          )
-          .find_or_create_by!(telegram_id: chat_id)
+               .create_with(
+                 username: username,
+                 firstname: firstname,
+                 lastname: lastname
+               )
+               .find_or_create_by!(telegram_id: chat_id)
 
         Success(user)
       rescue ActiveRecord::RecordInvalid => e

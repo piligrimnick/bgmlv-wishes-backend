@@ -6,9 +6,8 @@ module Wishes
 
       def call
         wish = Wish
-          .includes(:user, :booking, :booker, picture_attachment: :blob)
-          .where(filters.merge(id: id))
-          .take
+               .includes(:user, :booking, :booker, picture_attachment: :blob)
+               .find_by(filters.merge(id: id))
 
         wish ? Success(wish) : Failure(:not_found)
       end

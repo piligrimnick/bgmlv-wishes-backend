@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Wishes::Create, type: :service do
   subject(:call_service) { described_class.call(**params) }
+
   let(:params) { { user_id: user_id, wish: wish_attributes } }
 
   let(:user_id) { create(:user).id }
@@ -9,7 +10,7 @@ RSpec.describe Wishes::Create, type: :service do
 
   it 'creates a wish' do
     expect { call_service }.to change(Wish, :count).by(1)
-    
+
     # Result is a Dry::Monads::Result
     expect(subject).to be_success
     expect(subject.value!).to be_a(Wish)

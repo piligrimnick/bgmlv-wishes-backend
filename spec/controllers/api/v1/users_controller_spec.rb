@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Api::V1::UsersController, type: :controller do
+RSpec.describe Api::V1::UsersController do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
   let(:token) { create(:doorkeeper_access_token, resource_owner_id: user.id, scopes: 'read write') }
@@ -35,7 +35,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       it 'allows password update' do
         put :update, params: { id: user.id, user: { password: 'newpassword123' } }
         expect(response).to have_http_status(:ok)
-        expect(user.reload.valid_password?('newpassword123')).to be_truthy
+        expect(user.reload).to be_valid_password('newpassword123')
       end
     end
 
@@ -56,7 +56,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
     context 'when requesting own profile' do
       it 'returns the email' do
         get :show, params: { id: user.id }
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['email']).to eq(user.email)
       end
     end
@@ -64,7 +64,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
     context 'when requesting another user profile' do
       it 'does not return the email' do
         get :show, params: { id: other_user.id }
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response).not_to have_key('email')
       end
     end
@@ -75,8 +75,8 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 
     it 'returns paginated users when using pagination' do
       get :index, params: { page: 1, per_page: 5 }
-      json_response = JSON.parse(response.body)
-      
+      json_response = response.parsed_body
+
       expect(json_response).to have_key('data')
       expect(json_response).to have_key('metadata')
       expect(json_response['data'].size).to eq(5)
@@ -85,8 +85,8 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 
     it 'returns standard array without pagination params' do
       get :index
-      json_response = JSON.parse(response.body)
-      
+      json_response = response.parsed_body
+
       expect(json_response).to be_a(Array)
       expect(json_response.size).to be >= 15
     end

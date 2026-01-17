@@ -2,7 +2,7 @@ class ApplicationService
   extend Dry::Initializer
   include Dry::Monads[:result]
 
-  def self.call(*args, **kwargs, &block)
-    new(*args, **kwargs).call(&block)
+  def self.call(*, **, &)
+    new(*, **).call(&)
   end
 end

@@ -1,17 +1,26 @@
+plugins:
+  - rubocop-rails
+  - rubocop-factory_bot
+  - rubocop-rspec
+  - rubocop-rspec_rails
+  - rubocop-performance
+
 AllCops:
-  TargetRubyVersion: 2.7.0
+  TargetRubyVersion: 3.4.8
+  TargetRailsVersion: 8.0.2.1
+
   Exclude:
     - "db/**/*"
     - "config/**/*"
     - "bin/**/*"
     - "Gemfile"
     - "vendor/**/*"
-
+  NewCops: enable
 Metrics/AbcSize:
   Max: 25
 
 Layout/LineLength:
-  Max: 120
+  Enabled: false
 
 Metrics/MethodLength:
   Max: 15

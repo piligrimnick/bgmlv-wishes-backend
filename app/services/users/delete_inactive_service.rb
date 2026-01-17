@@ -7,9 +7,9 @@ module Users
 
       inactive_users = result.value!
       user_ids = inactive_users.map(&:id)
-      
+
       User.where(id: user_ids).destroy_all
-      
+
       Success(user_ids.count)
     end
   end

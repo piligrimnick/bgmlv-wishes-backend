@@ -7,12 +7,12 @@ RSpec.describe Users::DeleteInactiveService do
     let!(:wish) { create(:wish, user: active_user) }
 
     it 'deletes only inactive users' do
-      expect {
+      expect do
         described_class.call
-      }.to change(User, :count).by(-1)
+      end.to change(User, :count).by(-1)
 
-      expect(User.exists?(active_user.id)).to be_truthy
-      expect(User.exists?(inactive_user.id)).to be_falsey
+      expect(User).to exist(active_user.id)
+      expect(User).not_to exist(inactive_user.id)
     end
 
     it 'returns the count of deleted users' do

@@ -17,7 +17,7 @@ module Wishes
           )
 
           if picture.present?
-            filename = picture.respond_to?(:original_filename) ? picture.original_filename : "image"
+            filename = picture.respond_to?(:original_filename) ? picture.original_filename : 'image'
             wish.picture.attach(io: picture, filename: "#{wish.id}_#{filename}")
             wish.save
           end
