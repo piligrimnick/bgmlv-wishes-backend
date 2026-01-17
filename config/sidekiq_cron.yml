@@ -1,0 +1,4 @@
+daily_task:
+  cron: "0 1 * * *"
+  class: "DailyTaskJob"
+  queue: default

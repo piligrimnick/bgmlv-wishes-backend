@@ -53,5 +53,18 @@ services:
 
     command: ./bin/bot
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  sidekiq:
+    <<: *app
+    depends_on:
+      - app
+      - database
+      - redis
+    command: bundle exec sidekiq
+
 volumes:
   app_bundle:

@@ -85,3 +85,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem "rubocop-faker", "~> 1.0"
 
 gem "down", "~> 5.4"
+
+gem 'sidekiq'
+gem 'sidekiq-cron'
+gem 'redis'
