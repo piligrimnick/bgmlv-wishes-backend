@@ -25,11 +25,13 @@ RSpec.describe 'Authentication API', type: :request do
                  token_type: { type: :string, description: 'Token type (Bearer)' },
                  expires_in: { type: :integer, description: 'Token expiration time in seconds' },
                  scope: { type: :string, description: 'Token scope' },
-                 created_at: { type: :integer, description: 'Token creation timestamp' },
+                 created_at: { type: :string, description: 'User creation timestamp' },
+                 updated_at: { type: :string, description: 'User update timestamp' },
                  id: { type: :integer, description: 'User ID' },
                  username: { type: :string, nullable: true, description: 'Username' },
                  firstname: { type: :string, nullable: true, description: 'First name' },
-                 lastname: { type: :string, nullable: true, description: 'Last name' }
+                 lastname: { type: :string, nullable: true, description: 'Last name' },
+                 telegram_id: { type: :string, nullable: true, description: 'Telegram ID' }
                },
                required: %w[access_token token_type expires_in scope created_at id]
 
@@ -132,11 +134,13 @@ RSpec.describe 'Authentication API', type: :request do
                  token_type: { type: :string },
                  expires_in: { type: :integer },
                  scope: { type: :string },
-                 created_at: { type: :integer },
+                 created_at: { type: :string },
+                 updated_at: { type: :string },
                  id: { type: :integer },
                  username: { type: :string, nullable: true },
                  firstname: { type: :string, nullable: true },
-                 lastname: { type: :string, nullable: true }
+                 lastname: { type: :string, nullable: true },
+                 telegram_id: { type: :string, nullable: true }
                }
 
         run_test! do |response|

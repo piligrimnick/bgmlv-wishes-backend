@@ -16,7 +16,7 @@ module Api
         headers.merge!(response.headers)
 
         if result.success?
-          user_data = UserSerializer.new(result.value!).as_json(secure: true)
+          user_data = UserSerializer.new(result.value!).as_json(secure: false)
           render json: response.body.merge(user_data), status: response.status
         else
           render json: { error: 'User not found' }, status: :not_found

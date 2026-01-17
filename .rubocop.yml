@@ -1,8 +1,5 @@
 plugins:
   - rubocop-rails
-  - rubocop-factory_bot
-  - rubocop-rspec
-  - rubocop-rspec_rails
   - rubocop-performance
 
 AllCops:
@@ -17,9 +14,6 @@ AllCops:
     - "vendor/**/*"
   NewCops: enable
 
-RSpec/MultipleExpectations:
-  Enabled: false
-  
 Metrics/AbcSize:
   Max: 25
 
