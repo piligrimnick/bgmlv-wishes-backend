@@ -79,51 +79,225 @@ paths:
               type: string
         required: true
         description: OAuth grant type
-  "/api/users":
-    get:
-      summary: List users
+  "/api/friendships":
+    post:
+      summary: Send friend request
       tags:
-      - Users
+      - Friendships
+      security:
+      - bearer_auth: []
+      parameters: []
+      responses:
+        '201':
+          description: successful
+        '409':
+          description: already friends or request exists
+        '422':
+          description: cannot friend yourself
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addressee_id:
+                  type: integer
+              required:
+              - addressee_id
+    get:
+      summary: List friends
+      tags:
+      - Friendships
+      security:
+      - bearer_auth: []
       parameters:
       - name: page
         in: query
         required: false
-        description: Page number
         schema:
           type: integer
       - name: per_page
         in: query
         required: false
-        description: Items per page
         schema:
           type: integer
+      responses:
+        '200':
+          description: successful
+  "/api/friendships/incoming":
+    get:
+      summary: List incoming friend requests
+      tags:
+      - Friendships
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: successful
+  "/api/friendships/outgoing":
+    get:
+      summary: List outgoing friend requests
+      tags:
+      - Friendships
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: successful
+  "/api/friendships/status/{user_id}":
+    parameters:
+    - name: user_id
+      in: path
+      description: user_id
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Check friendship status
+      tags:
+      - Friendships
+      security:
+      - bearer_auth: []
+      responses:
+        '200':
+          description: outgoing pending
+  "/api/friendships/{id}/accept":
+    parameters:
+    - name: id
+      in: path
+      description: id
+      required: true
+      schema:
+        type: integer
+    put:
+      summary: Accept friend request
+      tags:
+      - Friendships
+      security:
+      - bearer_auth: []
+      responses:
+        '200':
+          description: successful
+        '403':
+          description: forbidden - not addressee
+  "/api/friendships/{id}/reject":
+    parameters:
+    - name: id
+      in: path
+      description: id
+      required: true
+      schema:
+        type: integer
+    put:
+      summary: Reject friend request
+      tags:
+      - Friendships
+      security:
+      - bearer_auth: []
+      responses:
+        '200':
+          description: successful
+  "/api/friendships/{id}/cancel":
+    parameters:
+    - name: id
+      in: path
+      description: id
+      required: true
+      schema:
+        type: integer
+    delete:
+      summary: Cancel friend request
+      tags:
+      - Friendships
+      security:
+      - bearer_auth: []
+      responses:
+        '200':
+          description: successful
+        '403':
+          description: forbidden - not requester
+  "/api/friendships/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: id
+      required: true
+      schema:
+        type: integer
+    delete:
+      summary: Remove friendship
+      tags:
+      - Friendships
+      security:
+      - bearer_auth: []
+      responses:
+        '200':
+          description: successful as addressee
+        '422':
+          description: not accepted friendship
+  "/api/users/search":
+    get:
+      summary: Search users
+      tags:
+      - Users
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: q
+        in: query
+        required: true
+        description: Search query
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: includes friendship status
+  "/api/users":
+    get:
+      summary: List users
+      tags:
+      - Users
       responses:
         '200':
           description: Success
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: array
-                    items:
-                      type: object
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          type: object
-                      metadata:
-                        type: object
-                        properties:
-                          total_count:
-                            type: integer
-                          page:
-                            type: integer
-                          per_page:
-                            type: integer
-                          total_pages:
-                            type: integer
+                type: array
+                items:
+                  type: object
   "/api/users/{id}":
     parameters:
     - name: id
@@ -188,18 +362,6 @@ paths:
         required: true
         schema:
           type: string
-      - name: page
-        in: query
-        required: false
-        description: Page number
-        schema:
-          type: integer
-      - name: per_page
-        in: query
-        required: false
-        description: Items per page
-        schema:
-          type: integer
       - name: o
         in: query
         required: false
@@ -212,27 +374,14 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: array
+                type: object
+                properties:
+                  data:
+                    type: array
                     items:
                       type: object
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          type: object
-                      metadata:
-                        type: object
-                        properties:
-                          total_count:
-                            type: integer
-                          page:
-                            type: integer
-                          per_page:
-                            type: integer
-                          total_pages:
-                            type: integer
+                  metadata:
+                    type: object
   "/api/realised_user_wishes/{user_id}":
     get:
       summary: Get realised user wishes
@@ -247,18 +396,6 @@ paths:
         required: true
         schema:
           type: string
-      - name: page
-        in: query
-        required: false
-        description: Page number
-        schema:
-          type: integer
-      - name: per_page
-        in: query
-        required: false
-        description: Items per page
-        schema:
-          type: integer
       - name: o
         in: query
         required: false
@@ -271,27 +408,14 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: array
+                type: object
+                properties:
+                  data:
+                    type: array
                     items:
                       type: object
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          type: object
-                      metadata:
-                        type: object
-                        properties:
-                          total_count:
-                            type: integer
-                          page:
-                            type: integer
-                          per_page:
-                            type: integer
-                          total_pages:
-                            type: integer
+                  metadata:
+                    type: object
   "/api/wishes":
     get:
       summary: List current user wishes
@@ -325,7 +449,7 @@ paths:
       - bearer_auth: []
       parameters: []
       responses:
-        '200':
+        '201':
           description: Success
           content:
             application/json:

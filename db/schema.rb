@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_05_190304) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_17_135828) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,6 +52,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_05_190304) do
     t.index ["user_id", "wish_id"], name: "index_bookings_on_user_id_and_wish_id", unique: true
     t.index ["user_id"], name: "index_bookings_on_user_id"
     t.index ["wish_id"], name: "index_bookings_on_wish_id", unique: true
+  end
+
+  create_table "friendships", force: :cascade do |t|
+    t.bigint "requester_id", null: false
+    t.bigint "addressee_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["addressee_id", "status"], name: "index_friendships_on_addressee_and_status"
+    t.index ["requester_id", "addressee_id"], name: "index_friendships_on_requester_and_addressee", unique: true
+    t.index ["requester_id", "status"], name: "index_friendships_on_requester_and_status"
+    t.index ["status", "created_at"], name: "index_friendships_on_status_and_created_at"
   end
 
   create_table "oauth_access_grants", force: :cascade do |t|
@@ -128,6 +140,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_05_190304) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bookings", "users"
   add_foreign_key "bookings", "wishes"
+  add_foreign_key "friendships", "users", column: "addressee_id"
+  add_foreign_key "friendships", "users", column: "requester_id"
   add_foreign_key "oauth_access_grants", "oauth_applications", column: "application_id"
   add_foreign_key "oauth_access_grants", "users", column: "resource_owner_id"
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"

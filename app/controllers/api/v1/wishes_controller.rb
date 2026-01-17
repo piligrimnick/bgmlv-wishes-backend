@@ -1,11 +1,13 @@
 module Api
   module V1
     class WishesController < ApplicationController
-      skip_before_action :doorkeeper_authorize!, only: [:user_wishes]
+      skip_before_action :doorkeeper_authorize!, only: [:user_wishes, :realised_user_wishes]
 
       def user_wishes
-        result = ::Wishes::Queries::ListWishes.call(
-          filters: { user_id: params[:user_id], state: :active },
+        result = ::Wishes::Queries::ListVisibleWishes.call(
+          owner_id: params[:user_id],
+          viewer_id: current_user&.id,
+          state: :active,
           order: params[:o] || 'created_at desc',
           page: params[:page],
           per_page: params[:per_page]
@@ -15,8 +17,10 @@ module Api
       end
 
       def realised_user_wishes
-        result = ::Wishes::Queries::ListWishes.call(
-          filters: { user_id: params[:user_id], state: :realised },
+        result = ::Wishes::Queries::ListVisibleWishes.call(
+          owner_id: params[:user_id],
+          viewer_id: current_user&.id,
+          state: :realised,
           order: params[:o] || 'created_at desc',
           page: params[:page],
           per_page: params[:per_page]
@@ -38,7 +42,24 @@ module Api
 
       def show
         result = ::Wishes::Queries::FindWish.call(id: params[:id])
-        render_result(result)
+
+        if result.success?
+          wish = result.value!
+
+          # Check visibility
+          visibility_result = ::Wishes::Queries::CheckWishVisibility.call(
+            wish: wish,
+            viewer_id: current_user&.id
+          )
+
+          if visibility_result.success? && visibility_result.value!
+            render json: WishSerializer.new(wish).as_json, status: :ok
+          else
+            render json: { error: 'Not found' }, status: :not_found
+          end
+        else
+          render_error(result.failure, status: :not_found)
+        end
       end
 
       def create
@@ -47,6 +68,15 @@ module Api
       end
 
       def update
+        # Check ownership
+        wish_result = ::Wishes::Queries::FindWish.call(id: params[:id])
+        return render_error(:not_found, status: :not_found) if wish_result.failure?
+
+        wish = wish_result.value!
+        unless wish.user_id == current_user.id
+          return render json: { error: 'Forbidden' }, status: :forbidden
+        end
+
         result = ::Wishes::Commands::UpdateWish.call(
           id: params[:id],
           **wish_params.to_h.symbolize_keys
@@ -55,6 +85,15 @@ module Api
       end
 
       def destroy
+        # Check ownership
+        wish_result = ::Wishes::Queries::FindWish.call(id: params[:id])
+        return render_error(:not_found, status: :not_found) if wish_result.failure?
+
+        wish = wish_result.value!
+        unless wish.user_id == current_user.id
+          return render json: { error: 'Forbidden' }, status: :forbidden
+        end
+
         result = ::Wishes::Commands::DeleteWish.call(id: params[:id])
 
         if result.success?
@@ -65,11 +104,35 @@ module Api
       end
 
       def realise
+        # Check ownership
+        wish_result = ::Wishes::Queries::FindWish.call(id: params[:id])
+        return render_error(:not_found, status: :not_found) if wish_result.failure?
+
+        wish = wish_result.value!
+        unless wish.user_id == current_user.id
+          return render json: { error: 'Forbidden' }, status: :forbidden
+        end
+
         result = ::Wishes::Realise.call(wish_id: params[:id])
         render_result(result)
       end
 
       def book
+        # Check if booker can see this wish (must be friend)
+        wish_result = ::Wishes::Queries::FindWish.call(id: params[:id])
+        return render_error(:not_found, status: :not_found) if wish_result.failure?
+
+        wish = wish_result.value!
+
+        visibility_result = ::Wishes::Queries::CheckWishVisibility.call(
+          wish: wish,
+          viewer_id: current_user.id
+        )
+
+        unless visibility_result.success? && visibility_result.value!
+          return render json: { error: 'You must be friends to book this wish' }, status: :forbidden
+        end
+
         result = ::Wishes::Commands::BookWish.call(
           wish_id: params[:id],
           booker_id: current_user.id
@@ -88,7 +151,7 @@ module Api
       private
 
       def wish_params
-        params.expect(wish: [%i[body url]])
+        params.expect(wish: %i[body url])
       end
 
       def render_result(result, status: :ok)

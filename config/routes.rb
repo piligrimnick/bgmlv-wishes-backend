@@ -23,7 +23,27 @@ Rails.application.routes.draw do
          put :unbook
        end
      end
-     resources :users, only: %i(index show update)
+
+     resources :users, only: %i(index show update) do
+       collection do
+         get :search
+       end
+     end
+
+     # Friendships
+     resources :friendships, only: [:index, :create, :destroy] do
+       collection do
+         get :incoming
+         get :outgoing
+         get 'status/:user_id', action: :status
+       end
+
+       member do
+         put :accept
+         put :reject
+         delete :cancel
+       end
+     end
    end
  end
 end

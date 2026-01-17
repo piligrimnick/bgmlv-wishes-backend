@@ -42,7 +42,68 @@ module Api
         end
       end
 
+      # GET /api/v1/users/search?q=john
+      def search
+        result = ::Friendships::Queries::SearchUsers.call(
+          query: params[:q],
+          current_user_id: current_user.id,
+          page: params[:page],
+          per_page: params[:per_page]
+        )
+
+        if result.success?
+          data = result.value!
+
+          # Enrich with friendship status
+          users_with_status = if data.is_a?(Hash) && data.key?(:data)
+            enrich_users_with_friendship_status(data[:data])
+          else
+            enrich_users_with_friendship_status(data)
+          end
+
+          if data.is_a?(Hash) && data.key?(:metadata)
+            render json: {
+              data: users_with_status,
+              metadata: data[:metadata]
+            }
+          else
+            render json: users_with_status
+          end
+        else
+          render_error(result.failure)
+        end
+      end
+
       private
+
+      def enrich_users_with_friendship_status(users)
+        user_ids = users.map(&:id)
+
+        # Batch fetch all friendships
+        friendships = Friendship.where(
+          requester_id: [current_user.id, *user_ids],
+          addressee_id: [current_user.id, *user_ids]
+        ).to_a
+
+        users.map do |user|
+          friendship = friendships.find do |f|
+            (f.requester_id == current_user.id && f.addressee_id == user.id) ||
+            (f.requester_id == user.id && f.addressee_id == current_user.id)
+          end
+
+          user_json = UserSerializer.new(user).as_json(secure: false)
+
+          if friendship.nil?
+            user_json[:friendship_status] = 'none'
+          elsif friendship.requester_id == current_user.id
+            user_json[:friendship_status] = "outgoing_#{friendship.status}"
+          else
+            user_json[:friendship_status] = "incoming_#{friendship.status}"
+          end
+
+          user_json
+        end
+      end
 
       def user_params
         params.expect(user: %i[email password firstname lastname])
