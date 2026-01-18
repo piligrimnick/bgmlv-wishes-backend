@@ -30,11 +30,13 @@ Rails.application.routes.draw do
        end
      end
 
-     # Wishlists (read)
-     # - GET /api/v1/users/:user_id/wishlists
-     # - GET /api/v1/wishlists/:id
+     # Wishlists (CRUD)
+     # - POST /api/v1/wishlists (create)
+     # - GET /api/v1/wishlists/:id (show)
+     # - PUT /api/v1/wishlists/:id (update)
+     # - DELETE /api/v1/wishlists/:id (destroy)
      # - GET /api/v1/wishlists/:id/wishes
-     resources :wishlists, only: %i[show] do
+     resources :wishlists, only: [:create, :show, :update, :destroy] do
        member do
          get :wishes
        end

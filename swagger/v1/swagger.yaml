@@ -703,6 +703,65 @@ paths:
                 type: object
         '404':
           description: Private wishlist (unauthenticated denied)
+    patch:
+      summary: Update a wishlist (owner only)
+      tags:
+      - Wishlists
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: id
+        in: path
+        description: Wishlist ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Updated wishlist
+                description:
+                  type: string
+                  example: Updated description
+                visibility:
+                  type: string
+                  enum:
+                  - public
+                  - private
+                  example: public
+    delete:
+      summary: Delete a wishlist (owner only, requires confirmation)
+      tags:
+      - Wishlists
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: id
+        in: path
+        description: Wishlist ID
+        required: true
+        schema:
+          type: integer
+      - name: confirm
+        in: query
+        description: Confirmation flag
+        schema:
+          type: boolean
+      responses:
+        '204':
+          description: Success
   "/api/wishlists/{id}/wishes":
     get:
       summary: Get wishlist wishes (enforces visibility, returns all wishes)
@@ -728,6 +787,41 @@ paths:
                   type: object
         '404':
           description: Private wishlist wishes (unauthenticated denied)
+  "/api/wishlists":
+    post:
+      summary: Create a wishlist (owner only)
+      tags:
+      - Wishlists
+      security:
+      - bearer_auth: []
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: My wishlist
+                description:
+                  type: string
+                  example: Description
+                visibility:
+                  type: string
+                  enum:
+                  - public
+                  - private
+                  example: private
+              required:
+              - title
 servers:
 - url: "{protocol}://{host}"
   variables:

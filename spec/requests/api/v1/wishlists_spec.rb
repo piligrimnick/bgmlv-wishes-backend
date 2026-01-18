@@ -139,5 +139,79 @@ RSpec.describe 'Wishlists API', type: :request do
       end
     end
   end
-end
 
+  path '/api/wishlists' do
+    post 'Create a wishlist (owner only)' do
+      tags 'Wishlists'
+      consumes 'application/json'
+      produces 'application/json'
+      security [bearer_auth: []]
+
+      parameter name: :wishlist, in: :body, schema: {
+        type: :object,
+        properties: {
+          title: { type: :string, example: 'My wishlist' },
+          description: { type: :string, example: 'Description' },
+          visibility: { type: :string, enum: ['public', 'private'], example: 'private' }
+        },
+        required: ['title']
+      }
+
+      let(:owner_token) { Doorkeeper::AccessToken.create(resource_owner_id: owner.id, scopes: 'read write').token }
+      let(:Authorization) { "Bearer #{owner_token}" }
+      let(:wishlist) { { title: 'New Wishlist', description: 'Test', visibility: 'public' } }
+
+      response '201', 'Success' do
+        schema type: :object
+
+        run_test!
+      end
+    end
+  end
+
+  path '/api/wishlists/{id}' do
+    patch 'Update a wishlist (owner only)' do
+      tags 'Wishlists'
+      consumes 'application/json'
+      produces 'application/json'
+      security [bearer_auth: []]
+
+      parameter name: :id, in: :path, type: :integer, description: 'Wishlist ID'
+      parameter name: :wishlist, in: :body, schema: {
+        type: :object,
+        properties: {
+          title: { type: :string, example: 'Updated wishlist' },
+          description: { type: :string, example: 'Updated description' },
+          visibility: { type: :string, enum: ['public', 'private'], example: 'public' }
+        }
+      }
+
+      let(:owner_token) { Doorkeeper::AccessToken.create(resource_owner_id: owner.id, scopes: 'read write').token }
+      let(:Authorization) { "Bearer #{owner_token}" }
+      let(:wishlist) { { title: 'Updated Name' } }
+
+      response '200', 'Success' do
+        schema type: :object
+
+        run_test!
+      end
+    end
+
+    delete 'Delete a wishlist (owner only, requires confirmation)' do
+      tags 'Wishlists'
+      produces 'application/json'
+      security [bearer_auth: []]
+
+      parameter name: :id, in: :path, type: :integer, description: 'Wishlist ID'
+      parameter name: :confirm, in: :query, type: :boolean, description: 'Confirmation flag'
+
+      let(:owner_token) { Doorkeeper::AccessToken.create(resource_owner_id: owner.id, scopes: 'read write').token }
+      let(:Authorization) { "Bearer #{owner_token}" }
+      let(:confirm) { true }
+
+      response '204', 'Success' do
+        run_test!
+      end
+    end
+  end
+end

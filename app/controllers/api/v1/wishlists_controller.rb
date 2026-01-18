@@ -21,6 +21,55 @@ module Api
         end
       end
 
+      # POST /api/v1/wishlists
+      def create
+        wishlist_params = params.permit(:title, :description, :visibility).to_h
+        wishlist_params['name'] = wishlist_params.delete('title') if wishlist_params.key?('title')
+        result = ::Wishlists::Commands::CreateWishlist.call(
+          user_id: current_user.id,
+          **wishlist_params.symbolize_keys
+        )
+
+        if result.success?
+          render json: WishlistSerializer.new(result.value!).as_json, status: :created
+        else
+          render_error(result.failure, status: :unprocessable_entity)
+        end
+      end
+
+      # PUT /api/v1/wishlists/:id
+      def update
+        wishlist_params = params.permit(:title, :description, :visibility).to_h
+        wishlist_params['name'] = wishlist_params.delete('title') if wishlist_params.key?('title')
+        result = ::Wishlists::Commands::UpdateWishlist.call(
+          id: params[:id],
+          user_id: current_user.id,
+          **wishlist_params.symbolize_keys
+        )
+
+        if result.success?
+          render json: WishlistSerializer.new(result.value!).as_json, status: :ok
+        else
+          render_error(result.failure, status: :unprocessable_entity)
+        end
+      end
+
+      # DELETE /api/v1/wishlists/:id
+      def destroy
+        confirm_param = params[:confirm] || params.dig(:confirm)
+        result = ::Wishlists::Commands::DeleteWishlist.call(
+          id: params[:id],
+          user_id: current_user.id,
+          confirm: confirm_param == 'true' || confirm_param == true
+        )
+
+        if result.success?
+          head :no_content
+        else
+          render_error(result.failure, status: :unprocessable_entity)
+        end
+      end
+
       # GET /api/v1/wishlists/:id
       def show
         wishlist_result = ::Wishlists::Queries::FindWishlist.call(id: params[:id])
@@ -78,4 +127,3 @@ module Api
     end
   end
 end
-
