@@ -14,6 +14,7 @@ class WishSerializer
       created_at: wish.created_at,
       updated_at: wish.updated_at,
       user_id: wish.user_id,
+      wishlist_id: wish.wishlist_id,
       user: wish.user ? UserSerializer.new(wish.user).as_json(secure: false) : nil,
       booker_id: wish.booking&.user_id,
       booker: wish.booker ? UserSerializer.new(wish.booker).as_json(secure: false) : nil,

@@ -1,5 +1,6 @@
 class Wish < ApplicationRecord
   belongs_to :user
+  belongs_to :wishlist
 
   has_one :booking, dependent: :destroy
   has_one :booker, through: :booking, source: :user

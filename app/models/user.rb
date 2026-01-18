@@ -16,6 +16,8 @@ class User < ApplicationRecord
 
   has_many :wishes
 
+  has_many :wishlists, dependent: :destroy
+
   has_many :bookings, dependent: :destroy
   has_many :booked_wishes, through: :bookings, source: :wish
 

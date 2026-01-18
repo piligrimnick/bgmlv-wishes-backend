@@ -4,5 +4,7 @@ FactoryBot.define do
     url { Faker::Internet.url }
     state { :active }
     user
+
+    wishlist { association :wishlist, user: user }
   end
 end

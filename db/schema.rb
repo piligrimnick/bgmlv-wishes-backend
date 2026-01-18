@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_17_135828) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_18_203313) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,6 +52,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_17_135828) do
     t.index ["user_id", "wish_id"], name: "index_bookings_on_user_id_and_wish_id", unique: true
     t.index ["user_id"], name: "index_bookings_on_user_id"
     t.index ["wish_id"], name: "index_bookings_on_wish_id", unique: true
+  end
+
+  create_table "data_migrations", primary_key: "version", id: :string, force: :cascade do |t|
   end
 
   create_table "friendships", force: :cascade do |t|
@@ -131,9 +134,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_17_135828) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "state", default: 0, null: false
+    t.bigint "wishlist_id", null: false
     t.index ["state"], name: "index_wishes_on_state"
     t.index ["user_id", "state", "created_at"], name: "index_wishes_on_user_id_and_state_and_created_at"
     t.index ["user_id"], name: "index_wishes_on_user_id"
+    t.index ["wishlist_id"], name: "index_wishes_on_wishlist_id"
+  end
+
+  create_table "wishlists", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.integer "visibility", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_wishlists_on_user_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -146,4 +161,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_17_135828) do
   add_foreign_key "oauth_access_grants", "users", column: "resource_owner_id"
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
   add_foreign_key "oauth_access_tokens", "users", column: "resource_owner_id"
+  add_foreign_key "wishes", "wishlists", on_delete: :cascade
+  add_foreign_key "wishlists", "users"
 end

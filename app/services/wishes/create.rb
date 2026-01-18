@@ -5,6 +5,7 @@ module Wishes
       option :body
       option :url, optional: true
       option :picture, optional: true
+      option :wishlist_id, optional: true
     end
 
     def call

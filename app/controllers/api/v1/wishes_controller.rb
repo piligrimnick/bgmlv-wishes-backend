@@ -30,8 +30,11 @@ module Api
       end
 
       def index
+        filters = { user_id: current_user.id, state: :active }
+        filters[:wishlist_id] = params[:wishlist_id] if params[:wishlist_id].present?
+
         result = ::Wishes::Queries::ListWishes.call(
-          filters: { user_id: current_user.id, state: :active },
+          filters: filters,
           order: params[:o] || 'created_at desc',
           page: params[:page],
           per_page: params[:per_page]
@@ -151,7 +154,7 @@ module Api
       private
 
       def wish_params
-        params.expect(wish: %i[body url])
+        params.expect(wish: %i[body url wishlist_id])
       end
 
       def render_result(result, status: :ok)
