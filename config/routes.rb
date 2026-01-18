@@ -30,6 +30,18 @@ Rails.application.routes.draw do
        end
      end
 
+     # Wishlists (read)
+     # - GET /api/v1/users/:user_id/wishlists
+     # - GET /api/v1/wishlists/:id
+     # - GET /api/v1/wishlists/:id/wishes
+     resources :wishlists, only: %i[show] do
+       member do
+         get :wishes
+       end
+     end
+
+     get 'users/:user_id/wishlists', to: 'wishlists#user_wishlists'
+
      # Friendships
      resources :friendships, only: [:index, :create, :destroy] do
        collection do

@@ -657,6 +657,77 @@ paths:
                 type: object
         '401':
           description: Unauthorized
+  "/api/users/{user_id}/wishlists":
+    get:
+      summary: List user wishlists (public/private visibility)
+      tags:
+      - Wishlists
+      parameters:
+      - name: user_id
+        in: path
+        description: Owner user_id
+        required: true
+        schema:
+          type: integer
+      security:
+      - bearer_auth: []
+      responses:
+        '200':
+          description: Friend/owner (public + private)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  "/api/wishlists/{id}":
+    get:
+      summary: Get a wishlist (enforces visibility)
+      tags:
+      - Wishlists
+      parameters:
+      - name: id
+        in: path
+        description: Wishlist ID
+        required: true
+        schema:
+          type: integer
+      security:
+      - bearer_auth: []
+      responses:
+        '200':
+          description: Private wishlist (friend allowed)
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Private wishlist (unauthenticated denied)
+  "/api/wishlists/{id}/wishes":
+    get:
+      summary: Get wishlist wishes (enforces visibility, returns all wishes)
+      tags:
+      - Wishlists
+      parameters:
+      - name: id
+        in: path
+        description: Wishlist ID
+        required: true
+        schema:
+          type: integer
+      security:
+      - bearer_auth: []
+      responses:
+        '200':
+          description: Private wishlist wishes (friend allowed)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '404':
+          description: Private wishlist wishes (unauthenticated denied)
 servers:
 - url: "{protocol}://{host}"
   variables:
