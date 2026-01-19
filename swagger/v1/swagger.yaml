@@ -519,6 +519,9 @@ paths:
                     url:
                       type: string
                       description: URL
+                    wishlist_id:
+                      type: integer
+                      description: Wishlist ID (optional, defaults to default)
   "/api/wishes/{id}":
     parameters:
     - name: id
@@ -573,6 +576,9 @@ paths:
                     url:
                       type: string
                       description: URL
+                    wishlist_id:
+                      type: integer
+                      description: Wishlist ID (optional)
     delete:
       summary: Delete a wish
       tags:

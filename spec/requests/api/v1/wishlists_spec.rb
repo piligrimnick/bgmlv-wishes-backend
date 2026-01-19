@@ -147,19 +147,24 @@ RSpec.describe 'Wishlists API', type: :request do
       produces 'application/json'
       security [bearer_auth: []]
 
-      parameter name: :wishlist, in: :body, schema: {
+      parameter name: :wishlist_params, in: :body, schema: {
         type: :object,
         properties: {
-          title: { type: :string, example: 'My wishlist' },
-          description: { type: :string, example: 'Description' },
-          visibility: { type: :string, enum: ['public', 'private'], example: 'private' }
-        },
-        required: ['title']
+          wishlist: {
+            type: :object,
+            properties: {
+              title: { type: :string, example: 'My wishlist' },
+              description: { type: :string, example: 'Description' },
+              visibility: { type: :string, enum: ['public', 'private'], example: 'private' }
+            },
+            required: ['title']
+          }
+        }
       }
 
       let(:owner_token) { Doorkeeper::AccessToken.create(resource_owner_id: owner.id, scopes: 'read write').token }
       let(:Authorization) { "Bearer #{owner_token}" }
-      let(:wishlist) { { title: 'New Wishlist', description: 'Test', visibility: 'public' } }
+      let(:wishlist_params) { { wishlist: { title: 'New Wishlist', description: 'Test', visibility: 'public' } } }
 
       response '201', 'Success' do
         schema type: :object

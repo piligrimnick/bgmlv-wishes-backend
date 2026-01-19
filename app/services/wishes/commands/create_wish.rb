@@ -10,14 +10,23 @@ module Wishes
       def call
         wish = nil
 
-        resolved_wishlist_id = wishlist_id || Wishlist.where(user_id: user_id).order(:id).pick(:id)
-
-        if resolved_wishlist_id.nil?
-          resolved_wishlist_id = Wishlist.create!(
-            user_id: user_id,
-            name: 'Default',
-            visibility: :private
-          ).id
+        if wishlist_id
+          # Validate that the wishlist belongs to the user
+          wishlist = Wishlist.find_by(id: wishlist_id, user_id: user_id)
+          return Failure("Wishlist not found or not owned by user") unless wishlist
+          resolved_wishlist_id = wishlist_id
+        else
+          # Find or create default wishlist
+          default_wishlist = Wishlist.find_by(user_id: user_id, is_default: true)
+          unless default_wishlist
+            default_wishlist = Wishlist.create!(
+              user_id: user_id,
+              name: 'Default',
+              visibility: :private,
+              is_default: true
+            )
+          end
+          resolved_wishlist_id = default_wishlist.id
         end
 
         Wish.transaction do

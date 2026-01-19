@@ -10,7 +10,8 @@ class BackfillWishlistsAndAssignWishes < ActiveRecord::Migration[8.0]
         Wishlist.create!(
           user_id: user.id,
           name: 'Default',
-          visibility: :private
+          visibility: :private,
+          is_default: true
         )
       end
     end

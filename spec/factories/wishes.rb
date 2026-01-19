@@ -5,6 +5,8 @@ FactoryBot.define do
     state { :active }
     user
 
-    wishlist { association :wishlist, user: user }
+    wishlist do
+      user.default_wishlist || create(:wishlist, :default, user: user)
+    end
   end
 end

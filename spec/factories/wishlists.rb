@@ -4,5 +4,11 @@ FactoryBot.define do
     name { "Default" }
     description { nil }
     visibility { :private }
+    is_default { false }
+
+    trait :default do
+      name { "Default" }
+      is_default { true }
+    end
   end
 end

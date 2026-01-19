@@ -98,7 +98,8 @@ RSpec.describe 'Wishes API', type: :request do
             type: :object,
             properties: {
               body: { type: :string, description: 'Text description' },
-              url: { type: :string, description: 'URL' }
+              url: { type: :string, description: 'URL' },
+              wishlist_id: { type: :integer, description: 'Wishlist ID (optional, defaults to default)' }
             }
           }
         }
@@ -147,7 +148,8 @@ RSpec.describe 'Wishes API', type: :request do
             type: :object,
             properties: {
               body: { type: :string, description: 'Text description' },
-              url: { type: :string, description: 'URL' }
+              url: { type: :string, description: 'URL' },
+              wishlist_id: { type: :integer, description: 'Wishlist ID (optional)' }
             }
           }
         }

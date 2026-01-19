@@ -23,11 +23,14 @@ module Api
 
       # POST /api/v1/wishlists
       def create
-        wishlist_params = params.permit(:title, :description, :visibility).to_h
-        wishlist_params['name'] = wishlist_params.delete('title') if wishlist_params.key?('title')
+        wishlist_params = params.expect(wishlist: %i[title]).merge(params.permit(wishlist: %i[description visibility])[:wishlist] || {})
+        results_params = { name: wishlist_params[:title] }
+        results_params[:description] = wishlist_params[:description] if wishlist_params[:description].present?
+        results_params[:visibility] = wishlist_params[:visibility] if wishlist_params[:visibility].present?
+
         result = ::Wishlists::Commands::CreateWishlist.call(
           user_id: current_user.id,
-          **wishlist_params.symbolize_keys
+          **results_params.symbolize_keys
         )
 
         if result.success?

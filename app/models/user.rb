@@ -47,4 +47,8 @@ class User < ApplicationRecord
   def friends
     User.where(id: friends_as_requester.pluck(:id) + friends_as_addressee.pluck(:id))
   end
+
+  def default_wishlist
+    wishlists.find_by(is_default: true)
+  end
 end
