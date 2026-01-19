@@ -640,6 +640,8 @@ paths:
                 type: object
         '401':
           description: Unauthorized
+        '403':
+          description: Forbidden - Own wish
   "/api/wishes/{id}/unbook":
     put:
       summary: Unbook a wish
@@ -814,20 +816,23 @@ paths:
             schema:
               type: object
               properties:
-                title:
-                  type: string
-                  example: My wishlist
-                description:
-                  type: string
-                  example: Description
-                visibility:
-                  type: string
-                  enum:
-                  - public
-                  - private
-                  example: private
-              required:
-              - title
+                wishlist:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: My wishlist
+                    description:
+                      type: string
+                      example: Description
+                    visibility:
+                      type: string
+                      enum:
+                      - public
+                      - private
+                      example: private
+                  required:
+                  - title
 servers:
 - url: "{protocol}://{host}"
   variables:

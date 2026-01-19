@@ -8,6 +8,10 @@ module Wishes
         wish = Wish.find(wish_id)
         booker = User.find(booker_id)
 
+        unless Wishes::Policies::BookingPolicy.can_book_wishlist_wish?(booker, wish.wishlist.user)
+          return Failure(:forbidden)
+        end
+
         wish.update!(booker: booker)
         wish.reload
 

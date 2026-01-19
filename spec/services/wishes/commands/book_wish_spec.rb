@@ -6,6 +6,13 @@ RSpec.describe Wishes::Commands::BookWish, type: :service do
   let(:wish) { create(:wish) }
   let(:booker) { create(:user) }
 
+  # Create friendship for booking permission
+  let(:wishlist_owner) { wish.wishlist.user }
+
+  before do
+    create(:friendship, requester: wishlist_owner, addressee: booker, status: :accepted)
+  end
+
   describe '#call' do
     it { is_expected.to be_success }
 
@@ -48,6 +55,27 @@ RSpec.describe Wishes::Commands::BookWish, type: :service do
 
       it 'returns not_found error' do
         expect(book_wish.failure).to eq(:not_found)
+      end
+    end
+
+    context 'when not friends' do
+      # Remove friendship setup for this context
+      let(:book_wish_no_friend) do
+        described_class.call(wish_id: wish.id, booker_id: booker.id)
+      end
+
+      before do
+        # Override the shared before block friendship creation
+        Friendship.where(
+          "(requester_id = :a AND addressee_id = :b) OR (requester_id = :b AND addressee_id = :a)",
+          a: wishlist_owner.id, b: booker.id
+        ).delete_all
+      end
+
+      it { expect(book_wish_no_friend).to be_failure }
+
+      it 'returns forbidden error' do
+        expect(book_wish_no_friend.failure).to eq(:forbidden)
       end
     end
   end

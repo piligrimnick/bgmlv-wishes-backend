@@ -214,13 +214,53 @@ RSpec.describe 'Wishes API', type: :request do
       security [bearer_auth: []]
       parameter name: :id, in: :path, type: :integer, description: 'Wish ID'
 
-      response '200', 'Success' do
+      response '200', 'Success', response: :success do
         schema type: :object
+
+        let(:friend) { create(:user) }
+        let(:friend_token) { Doorkeeper::AccessToken.create(resource_owner_id: friend.id, scopes: 'read write').token }
+        let(:Authorization) { "Bearer #{friend_token}" }
+
+        before do
+          # Create default wishlist for user
+          create(:wishlist, user: user, is_default: true)
+          # Create friendship (one direction is enough)
+          create(:friendship, requester: user, addressee: friend, status: :accepted)
+        end
+
         run_test!
       end
 
-      response '401', 'Unauthorized' do
-        let(:Authorization) { 'Bearer invalid' }
+      response '401', 'Unauthorized', response: :unauthorized do
+        let(:Authorization) { nil }
+
+        before do
+          create(:wishlist, user: user, is_default: true)
+        end
+
+        run_test!
+      end
+
+      response '403', 'Forbidden - Not friends', response: :forbidden do
+        let(:other_user) { create(:user) }
+        let(:other_token) { Doorkeeper::AccessToken.create(resource_owner_id: other_user.id, scopes: 'read write').token }
+        let(:Authorization) { "Bearer #{other_token}" }
+
+        before do
+          create(:wishlist, user: user, is_default: true)
+          # No friendship between other_user and user
+        end
+
+        run_test!
+      end
+
+      response '403', 'Forbidden - Own wish', response: :forbidden_own_wish do
+        let(:Authorization) { "Bearer #{token}" }
+
+        before do
+          create(:wishlist, user: user, is_default: true)
+        end
+
         run_test!
       end
     end

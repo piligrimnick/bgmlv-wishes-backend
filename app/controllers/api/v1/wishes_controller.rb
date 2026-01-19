@@ -121,21 +121,6 @@ module Api
       end
 
       def book
-        # Check if booker can see this wish (must be friend)
-        wish_result = ::Wishes::Queries::FindWish.call(id: params[:id])
-        return render_error(:not_found, status: :not_found) if wish_result.failure?
-
-        wish = wish_result.value!
-
-        visibility_result = ::Wishes::Queries::CheckWishVisibility.call(
-          wish: wish,
-          viewer_id: current_user.id
-        )
-
-        unless visibility_result.success? && visibility_result.value!
-          return render json: { error: 'You must be friends to book this wish' }, status: :forbidden
-        end
-
         result = ::Wishes::Commands::BookWish.call(
           wish_id: params[:id],
           booker_id: current_user.id
@@ -173,7 +158,7 @@ module Api
             render json: WishSerializer.new(data).as_json, status: status
           end
         else
-          render_error(result.failure, status: :unprocessable_entity)
+          render_error(result.failure)
         end
       end
 
@@ -181,10 +166,12 @@ module Api
         case error
         when :not_found
           render json: { error: 'Not found' }, status: :not_found
+        when :forbidden
+          render json: { error: error.to_s }, status: :forbidden
         when ActiveModel::Errors
           render json: { errors: error }, status: status
         else
-          render json: { error: error }, status: status
+          render json: { error: error.to_s }, status: status
         end
       end
     end
