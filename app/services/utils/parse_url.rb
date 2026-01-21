@@ -3,6 +3,8 @@ module Utils
     option :text
 
     def call
+      return nil if text.blank?
+
       URI.extract(text).first
     end
   end
